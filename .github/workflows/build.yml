@@ -1,0 +1,71 @@
+﻿# Builds and runs tests in all three supported OSes
+# Pushes CI feed if secrets.SLEET_CONNECTION is provided
+
+name: build
+on: 
+  workflow_dispatch:
+  push:
+    branches: [ main, 'dev/*', 'feature/*', 'rel/*' ]
+    paths-ignore:
+      - readme.md
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+env:
+  DOTNET_NOLOGO: true
+  Configuration: Release
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🤘 checkout
+        uses: actions/checkout@v2
+
+      - name: 🙏 build
+        run: dotnet build
+
+      - name: ⚙ docker
+        uses: docker/setup-buildx-action@v1
+        if: github.ref == 'refs/heads/main'
+
+      - name: 🔓 docker login
+        uses: docker/login-action@v1
+        if: github.ref == 'refs/heads/main'
+        with:
+          registry: dscraper.azurecr.io
+          username: dscraper
+          password: ${{ secrets.AZURE_CONTAINER_PWD }}
+
+      - name: 📅 date
+        run: echo "app_prefix=${{ github.ref_name }}.$(date +%Y-%m)" >> $GITHUB_ENV
+        
+      - name: 🚀 docker push
+        uses: docker/build-push-action@v2
+        if: github.ref == 'refs/heads/main'
+        with:
+          push: true
+          tags: dscraper.azurecr.io/${{ env.app_prefix }}:${{ github.sha }}
+          file: src/Scraper/Dockerfile
+
+      - name: 🔓 azure login
+        uses: azure/login@v1
+        if: github.ref == 'refs/heads/main'
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: 🚀 docker deploy
+        uses: azure/CLI@v1
+        if: github.ref == 'refs/heads/main'
+        with:
+          inlineScript: |
+            az config set extension.use_dynamic_install=yes_without_prompt
+            az containerapp update -g scraper -n scraper --container-name scraper --image scraper.azurecr.io/${{ env.app_prefix }}:${{ github.sha }}
+
+      - name: 🔒 logout
+        if: github.ref == 'refs/heads/main'
+        run: az logout
