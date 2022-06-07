@@ -1,12 +1,10 @@
 ﻿using Devlooped.Xml.Css;
 
-namespace Scraper;
+public record Scrape(string Selector, string Url, bool BrowserOnly = false);
 
-public record ScrapeRequest(string Selector, string Url, bool BrowserOnly = false);
-
-public static class Scrape
+public static class Scraper
 {
-    public static async Task<IResult> CssAsync([FromServices] IHttpClientFactory factory, [FromServices] Lazy<IBrowser> browser, ScrapeRequest scrape)
+    public static async Task<IResult> CssAsync([FromServices] IHttpClientFactory factory, [FromServices] Lazy<IBrowser> browser, Scrape scrape)
     {
         var results = new List<XElement>();
 

@@ -26,8 +26,8 @@ var app = builder.Build();
 
 app.UseRouting();
 
-app.MapPost("/css", Scrape.CssAsync);
-app.MapGet("/css", ([FromServices] IHttpClientFactory factory, [FromServices]Lazy<IBrowser> chromium, string selector, string url, bool? browser) 
-    => Scrape.CssAsync(factory, chromium, new ScrapeRequest(selector, url, browser ?? false)));
+app.MapPost("/", Scraper.CssAsync);
+app.MapGet("/", ([FromServices] IHttpClientFactory factory, [FromServices]Lazy<IBrowser> chromium, string selector, string url, bool? browser) 
+    => Scraper.CssAsync(factory, chromium, new Scrape(selector, url, browser ?? false)));
 
 app.Run();
