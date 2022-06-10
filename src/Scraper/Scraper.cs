@@ -10,7 +10,7 @@ public static class Scraper
 
         if (!scrape.BrowserOnly)
         {
-            var http = factory.CreateClient("xhtml");
+            var http = factory.CreateClient("Xhtml");
             var response = await http.GetAsync(scrape.Url);
 
             if (!response.IsSuccessStatusCode)
@@ -50,6 +50,6 @@ public static class Scraper
             }
         }
 
-        return Results.Content(new XElement("scraper", results).ToString(), "text/xml");
+        return Results.Content(new XElement("scraper", results).ToString(), "application/xml");
     }
 }

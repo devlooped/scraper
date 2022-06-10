@@ -1,7 +1,7 @@
 ﻿var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddHttpClient("http");
-builder.Services.AddHttpClient("xhtml")
+builder.Services.AddHttpClient("Default");
+builder.Services.AddHttpClient("Xhtml")
     .ConfigurePrimaryHttpMessageHandler(() =>
         new ContentLocationHttpHandler(
             new XhtmlHttpHandler(new HttpClientHandler
