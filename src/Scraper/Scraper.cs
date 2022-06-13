@@ -42,7 +42,26 @@ public record Scraper(IHttpClientFactory HttpFactory, Lazy<IBrowser> Browser, IL
             }
             catch (TimeoutException)
             {
-                return new XmlContentResult(await ReadOuterXml(await page.QuerySelectorAsync("body")) ?? new XElement("scraper"), 404);
+                // Try with whatever state we got so far, perhaps this will work anyway? :/
+                foreach (var element in await page.QuerySelectorAllAsync(scrape.Selector))
+                {
+                    if (await ReadOuterXml(element) is XElement node)
+                        results.Add(node);
+                }
+
+                if (results.Count == 0)
+                {
+                    // Final attempt using Linq2Css?
+                    var html = await ReadOuterXml(await page.QuerySelectorAsync("html"));
+
+                    results.AddRange(html.CssSelectElements(scrape.Selector));
+                }
+
+                if (results.Count == 0)
+                    return new XmlContentResult(await ReadOuterXml(await page.QuerySelectorAsync("html")) ?? new XElement("html"), 404);
+                else
+                    return Results.Content(new XElement("scraper", results).ToString(), "application/xml");
+
             }
 
             var elements = await page.QuerySelectorAllAsync(scrape.Selector);
