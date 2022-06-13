@@ -19,7 +19,7 @@
     "Docker": {
       "commandName": "Docker",
       "launchBrowser": true,
-      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/css?selector=body&browser=true&url=https://clarius.org",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/?selector=body&browserOnly=true&url=https://clarius.org",
       "publishAllPorts": true,
       "useSSL": true
     }

@@ -2,15 +2,15 @@
 
 public record Scrape(string Selector, string Url, bool BrowserOnly = false);
 
-public static class Scraper
+public record Scraper(IHttpClientFactory HttpFactory, Lazy<IBrowser> Browser, ILogger<Scraper> Logger)
 {
-    public static async Task<IResult> CssAsync([FromServices] IHttpClientFactory factory, [FromServices] Lazy<IBrowser> browser, Scrape scrape)
+    public async Task<IResult> ScrapeAsync(Scrape scrape)
     {
         var results = new List<XElement>();
 
         if (!scrape.BrowserOnly)
         {
-            var http = factory.CreateClient("Xhtml");
+            var http = HttpFactory.CreateClient("Xhtml");
             var response = await http.GetAsync(scrape.Url);
 
             if (!response.IsSuccessStatusCode)
@@ -19,13 +19,21 @@ public static class Scraper
             var doc = await response.Content.ReadAsDocumentAsync();
             results.AddRange(doc.CssSelectElements(scrape.Selector));
         }
+        else
+        {
+            Logger.LogInformation("Scraping using browser only: " + scrape.Url + "#" + scrape.Selector);
+        }
 
         if (results.Count == 0)
         {
-            var page = await browser.Value.NewPageAsync();
-            await page.GotoAsync(scrape.Url, new PageGotoOptions
+            if (!scrape.BrowserOnly)
+                Logger.LogInformation("Falling back to browser scraping for " + scrape.Url + "#" + scrape.Selector);
+
+            var page = await Browser.Value.NewPageAsync();
+            await page.GotoAsync(scrape.Url);
+            await page.WaitForSelectorAsync(scrape.Selector, new PageWaitForSelectorOptions
             {
-                WaitUntil = WaitUntilState.NetworkIdle
+                State = WaitForSelectorState.Attached
             });
 
             var elements = await page.QuerySelectorAllAsync(scrape.Selector);
