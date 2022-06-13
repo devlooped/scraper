@@ -42,6 +42,8 @@ public record Scraper(IHttpClientFactory HttpFactory, Lazy<IBrowser> Browser, IL
             }
             catch (TimeoutException)
             {
+                Logger.LogInformation("Timed out waiting for selector. Trying direct page query");
+
                 // Try with whatever state we got so far, perhaps this will work anyway? :/
                 foreach (var element in await page.QuerySelectorAllAsync(scrape.Selector))
                 {
@@ -51,6 +53,8 @@ public record Scraper(IHttpClientFactory HttpFactory, Lazy<IBrowser> Browser, IL
 
                 if (results.Count == 0)
                 {
+                    Logger.LogInformation("Final try using Linq to CSS by loading page raw HTML");
+
                     // Final attempt using Linq2Css?
                     var html = await ReadOuterXml(await page.QuerySelectorAsync("html"));
 
