@@ -44,6 +44,8 @@ public record Scraper(IHttpClientFactory HttpFactory, Lazy<IBrowser> Browser, IL
             {
                 Logger.LogInformation("Timed out waiting for selector. Trying direct page query");
 
+                var pageFallback = false;
+
                 // Try with whatever state we got so far, perhaps this will work anyway? :/
                 foreach (var element in await page.QuerySelectorAllAsync(scrape.Selector))
                 {
@@ -60,12 +62,21 @@ public record Scraper(IHttpClientFactory HttpFactory, Lazy<IBrowser> Browser, IL
 
                     results.AddRange(html.CssSelectElements(scrape.Selector));
                 }
+                else
+                {
+                    pageFallback = true;
+                }
 
                 if (results.Count == 0)
                     return new XmlContentResult(await ReadOuterXml(await page.QuerySelectorAsync("html")) ?? new XElement("html"), 404);
                 else
-                    return Results.Content(new XElement("scraper", results).ToString(), "application/xml");
-
+                    return new XmlContentResult(new XElement("scraper", results))
+                    {
+                        Headers =
+                        {
+                            { "X-Fallback", pageFallback ? "html" : "linq2css" }
+                        }
+                    };
             }
 
             var elements = await page.QuerySelectorAllAsync(scrape.Selector);
@@ -77,7 +88,7 @@ public record Scraper(IHttpClientFactory HttpFactory, Lazy<IBrowser> Browser, IL
             }
         }
 
-        return Results.Content(new XElement("scraper", results).ToString(), "application/xml");
+        return new XmlContentResult(new XElement("scraper", results));
     }
 
     async Task<XElement?> ReadOuterXml(IElementHandle? element)
@@ -104,12 +115,19 @@ public record Scraper(IHttpClientFactory HttpFactory, Lazy<IBrowser> Browser, IL
         return null;
     }
 
-    record XmlContentResult(XElement Content, int StatusCode) : IResult
+    record XmlContentResult(XElement Content, int StatusCode = 200) : IResult
     {
+        public Dictionary<string, string> Headers { get; } = new();
+
         public async Task ExecuteAsync(HttpContext context)
         {
             context.Response.StatusCode = StatusCode;
             context.Response.ContentType = "application/xml";
+
+            foreach (var header in Headers)
+            {
+                context.Response.Headers[header.Key] = header.Value;
+            }
 
             var xml = Content.ToString();
             var length = Encoding.UTF8.GetByteCount(xml);
