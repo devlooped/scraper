@@ -164,3 +164,13 @@
 	sha = 2f8a7d3dffc4409dbda61afb43326ab9d871c1ec
 	etag = c8f63b95f4631df1e1bdc1e3fa592260f40c86e36032a979b572b880cf5a4fff
 	weak
+[file "src/Scraper/System/Xml/BaseUriXmlReader.cs"]
+	url = https://github.com/devlooped/catbag/blob/main/System/Xml/BaseUriXmlReader.cs
+	sha = f7eac4f1ea38182a47579258934cf9f9982dd83c
+	etag = edb1996ad69be75749a32d94535bdd819d1919ba06af0b0e15101e7090864429
+	weak
+[file "src/Scraper/System/Xml/XmlWrappingReader.cs"]
+	url = https://github.com/devlooped/catbag/blob/main/System/Xml/XmlWrappingReader.cs
+	sha = f7eac4f1ea38182a47579258934cf9f9982dd83c
+	etag = 203f3b4626a86d94e2057c2b2a5b5499c32298159c198dad4efded78bed6d498
+	weak
