@@ -126,8 +126,8 @@
 	weak
 [file "src/nuget.config"]
 	url = https://github.com/devlooped/oss/blob/main/src/nuget.config
-	sha = f86b51943f609f1c8bd3c692826fd937167ce0fb
-	etag = 3e536371c7a2c7866fbf1dbc878929cd78cafb7646f569c20dc6ba03b6a1685b
+	sha = 1537aa96d3c999642d678e1143b09950f235b977
+	etag = 754274e682c3523e3ac0a142ada64abff20551dc73bf16edfbd66415dcf87fd0
 	weak
 [file "support.md"]
 	url = https://github.com/devlooped/oss/blob/main/support.md
@@ -153,4 +153,14 @@
 	url = https://github.com/devlooped/.github/blob/main/Gemfile
 	sha = f2dc1370469bec1b2d32d82faf659b050cdc7e2a
 	etag = d45832acd078778ffebf260000f6d25172a131f51684744d7e982da2a47170ce
+	weak
+[file "src/Scraper/System/Threading/Tasks/AsyncLazy.cs"]
+	url = https://github.com/devlooped/catbag/blob/main/System/Threading/Tasks/AsyncLazy.cs
+	sha = 960cbbef40795b4a213bf4df3a7850606da44411
+	etag = 8c45b202378991fe167d4f1fdd32b188b66a0fa1a2cf88eb4b6f7a5ff70ed212
+	weak
+[file "src/Scraper/Microsoft/Extensions/DependencyInjection/AddAsyncLazyExtension.cs"]
+	url = https://github.com/devlooped/catbag/blob/main/Microsoft/Extensions/DependencyInjection/AddAsyncLazyExtension.cs
+	sha = 2f8a7d3dffc4409dbda61afb43326ab9d871c1ec
+	etag = c8f63b95f4631df1e1bdc1e3fa592260f40c86e36032a979b572b880cf5a4fff
 	weak

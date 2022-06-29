@@ -14,13 +14,17 @@ builder.Services.AddHttpClient("Xhtml")
             })));
 
 builder.Services
-    .AddLazy()
-    .AddSingleton((_) => Playwright.CreateAsync().Result)
-    .AddSingleton((services) => services.GetRequiredService<IPlaywright>().Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+    .AddAsyncLazy()
+    .AddSingleton(_ => Playwright.CreateAsync())
+    .AddSingleton(async services => 
     {
-        ExecutablePath = Path.Combine(AppContext.BaseDirectory, "runtimes", "linux-x64", "native", "chrome"),
-        Headless = true,
-    }).Result)
+        var playwright = await services.GetRequiredService<AsyncLazy<IPlaywright>>();
+        return await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            ExecutablePath = Path.Combine(AppContext.BaseDirectory, "runtimes", "linux-x64", "native", "chrome"),
+            Headless = true,
+        });
+    })
     .AddTransient<Scraper>();
 
 var app = builder.Build();
@@ -28,7 +32,7 @@ var app = builder.Build();
 app.UseRouting();
 
 app.MapPost("/", ([FromServices] Scraper scraper, Scrape request) => scraper.ScrapeAsync(request));
-app.MapGet("/", ([FromServices] Scraper scraper, string selector, string url, bool? browserOnly) 
+app.MapGet("/", ([FromServices] Scraper scraper, string selector, string url, bool? browserOnly)
     => scraper.ScrapeAsync(new Scrape(selector, url, browserOnly ?? false)));
 
 app.Run();

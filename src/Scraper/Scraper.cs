@@ -3,7 +3,7 @@ using Devlooped.Xml.Css;
 
 public record Scrape(string Selector, string Url, bool BrowserOnly = false);
 
-public record Scraper(IHttpClientFactory HttpFactory, Lazy<IBrowser> Browser, ILogger<Scraper> Logger)
+record Scraper(IHttpClientFactory HttpFactory, AsyncLazy<IBrowser> Browser, ILogger<Scraper> Logger)
 {
     public async Task<IResult> ScrapeAsync(Scrape scrape)
     {
@@ -30,7 +30,8 @@ public record Scraper(IHttpClientFactory HttpFactory, Lazy<IBrowser> Browser, IL
             if (!scrape.BrowserOnly)
                 Logger.LogInformation("Falling back to browser scraping for " + scrape.Url + "#" + scrape.Selector);
 
-            var page = await Browser.Value.NewPageAsync();
+            var browser = await Browser;
+            var page = await browser.NewPageAsync();
             await page.GotoAsync(scrape.Url);
 
             try
