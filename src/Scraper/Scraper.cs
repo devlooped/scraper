@@ -50,7 +50,7 @@ record Scraper(IHttpClientFactory HttpFactory, AsyncLazy<IBrowser> Browser, ILog
                 // Try with whatever state we got so far, perhaps this will work anyway? :/
                 foreach (var element in await page.QuerySelectorAllAsync(scrape.Selector))
                 {
-                    if (await ReadOuterXml(element) is XElement node)
+                    if (await ReadOuterXmlAsync(element) is XElement node)
                         results.Add(node);
                 }
 
@@ -59,7 +59,7 @@ record Scraper(IHttpClientFactory HttpFactory, AsyncLazy<IBrowser> Browser, ILog
                     Logger.LogInformation("Final try using Linq to CSS by loading page raw HTML");
 
                     // Final attempt using Linq2Css?
-                    var html = await ReadOuterXml(await page.QuerySelectorAsync("html"));
+                    var html = await ReadOuterXmlAsync(await page.QuerySelectorAsync("html"));
 
                     results.AddRange(html.CssSelectElements(scrape.Selector));
                 }
@@ -69,7 +69,7 @@ record Scraper(IHttpClientFactory HttpFactory, AsyncLazy<IBrowser> Browser, ILog
                 }
 
                 if (results.Count == 0)
-                    return new XmlContentResult(await ReadOuterXml(await page.QuerySelectorAsync("html")) ?? new XElement("html"), 404);
+                    return new XmlContentResult(await ReadOuterXmlAsync(await page.QuerySelectorAsync("html")) ?? new XElement("html"), 404);
                 else
                     return new XmlContentResult(new XElement("scraper", results))
                     {
@@ -84,7 +84,7 @@ record Scraper(IHttpClientFactory HttpFactory, AsyncLazy<IBrowser> Browser, ILog
 
             foreach (var element in elements)
             {
-                if (await ReadOuterXml(element) is XElement node)
+                if (await ReadOuterXmlAsync(element) is XElement node)
                     results.Add(node);
             }
         }
@@ -92,7 +92,7 @@ record Scraper(IHttpClientFactory HttpFactory, AsyncLazy<IBrowser> Browser, ILog
         return new XmlContentResult(new XElement("scraper", results));
     }
 
-    async Task<XElement?> ReadOuterXml(IElementHandle? element)
+    static async Task<XElement?> ReadOuterXmlAsync(IElementHandle? element)
     {
         if (element == null)
             return null;
