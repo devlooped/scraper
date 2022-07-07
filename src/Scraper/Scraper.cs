@@ -14,11 +14,12 @@ record Scraper(IHttpClientFactory HttpFactory, AsyncLazy<IBrowser> Browser, ILog
             var http = HttpFactory.CreateClient("Xhtml");
             var response = await http.GetAsync(scrape.Url);
 
-            if (!response.IsSuccessStatusCode)
-                return Results.StatusCode((int)response.StatusCode);
-
-            var doc = await response.Content.ReadAsDocumentAsync();
-            results.AddRange(doc.CssSelectElements(scrape.Selector));
+            // We'll automatically fallback to browser
+            if (response.IsSuccessStatusCode)
+            {
+                var doc = await response.Content.ReadAsDocumentAsync();
+                results.AddRange(doc.CssSelectElements(scrape.Selector));
+            }
         }
         else
         {
@@ -33,7 +34,7 @@ record Scraper(IHttpClientFactory HttpFactory, AsyncLazy<IBrowser> Browser, ILog
             var browser = await Browser;
             var page = await browser.NewPageAsync();
             await page.GotoAsync(scrape.Url);
-
+            
             try
             {
                 await page.WaitForSelectorAsync(scrape.Selector, new PageWaitForSelectorOptions
