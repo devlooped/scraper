@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Devlooped.Html;
 using Devlooped.Xml.Css;
 
 public record Scrape(string Selector, string Url, bool BrowserOnly = false);
@@ -11,13 +12,13 @@ record Scraper(IHttpClientFactory HttpFactory, AsyncLazy<IBrowser> Browser, ILog
 
         if (!scrape.BrowserOnly)
         {
-            var http = HttpFactory.CreateClient("Xhtml");
+            var http = HttpFactory.CreateClient();
             var response = await http.GetAsync(scrape.Url);
 
             // We'll automatically fallback to browser
             if (response.IsSuccessStatusCode)
             {
-                var doc = await response.Content.ReadAsDocumentAsync();
+                var doc = HtmlDocument.Load(await response.Content.ReadAsStreamAsync());
                 results.AddRange(doc.CssSelectElements(scrape.Selector));
             }
         }

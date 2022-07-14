@@ -1,19 +1,7 @@
 ﻿var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddHttpClient("Default");
-builder.Services.AddHttpClient("Xhtml")
-    .ConfigurePrimaryHttpMessageHandler(() =>
-        new ContentLocationHttpHandler(
-            new XhtmlHttpHandler(new HttpClientHandler
-            {
-                AllowAutoRedirect = true,
-                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
-                UseDefaultCredentials = true,
-                UseProxy = false,
-                Proxy = null
-            })));
-
 builder.Services
+    .AddHttpClient()
     .AddAsyncLazy()
     .AddSingleton(_ => Playwright.CreateAsync())
     .AddSingleton(async services => 
