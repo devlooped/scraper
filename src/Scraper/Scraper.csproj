@@ -17,7 +17,7 @@
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.16.1" />
     <PackageReference Include="Microsoft.Xml.SgmlReader" Version="1.8.25" />
-    <PackageReference Include="Devlooped.Xml.Css" Version="1.1.2" />
+    <PackageReference Include="Devlooped.Xml.Css" Version="2.0.1" />
     <PackageReference Include="Microsoft.Playwright" Version="1.24.1" />
   </ItemGroup>
 
