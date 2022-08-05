@@ -1,6 +1,5 @@
 ﻿using System.Text;
-using Devlooped.Html;
-using Devlooped.Xml.Css;
+using Devlooped.Web;
 
 public record Scrape(string Selector, string Url, bool BrowserOnly = false);
 
